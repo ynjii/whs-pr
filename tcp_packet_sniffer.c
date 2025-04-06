@@ -202,20 +202,13 @@ int main() {
     bpf_u_int32 net;
     bpf_u_int32 mask;
     
-    // 네트워크 장치 찾기
-    char *dev = pcap_lookupdev(errbuf);
-    if (dev == NULL) {
-        fprintf(stderr, "네트워크 장치를 찾을 수 없습니다: %s\n", errbuf);
-        return 1;
-    }
-    printf("장치: %s\n", dev);
+    // 네트워크 장치
+    char *dev = "enp0s3";
+    printf("device: %s\n", dev);
     
     // 네트워크 장치 정보 가져오기
-    if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
-        fprintf(stderr, "네트워크 장치 정보를 가져올 수 없습니다: %s\n", errbuf);
-        net = 0;
-        mask = 0;
-    }
+    net = 0;
+    mask = 0;
     
     // 패킷 캡처 세션 열기
     handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
@@ -225,7 +218,7 @@ int main() {
     }
     
     // 필터 컴파일
-    if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
+    if (pcap_compile(handle, &fp, filter_exp, 0, PCAP_NETMASK_UNKNOWN) == -1) {
         fprintf(stderr, "필터를 컴파일할 수 없습니다: %s\n", pcap_geterr(handle));
         return 3;
     }
